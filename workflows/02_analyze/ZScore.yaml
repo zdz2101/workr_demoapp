@@ -1,0 +1,18 @@
+meta:
+  Type: Analysis
+  ID: ZScore
+  Description: WORK IN PROGRESS — per-observation z-scores. Not ready yet.
+  # `Active: false` excludes this workflow from discovery/execution by default.
+  # MakeWorkflowList()/RunProject() skip it unless bActiveOnly = FALSE.
+  Active: false
+  Priority: 9
+steps:
+  - name: workr::RunQuery
+    output: Analysis_ZScore
+    params:
+      df: Analysis_Prepared
+      strQuery: >
+        SELECT
+          group_id,
+          (value - AVG(value) OVER ()) / STDDEV_SAMP(value) OVER () AS z
+        FROM df

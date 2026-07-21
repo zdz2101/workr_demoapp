@@ -1,0 +1,11 @@
+meta:
+  Type: Analysis
+  ID: BrokenMetric
+  Description: Deliberately references a function that does not exist, to show
+    how bContinueOnError records the failure instead of aborting the run.
+  Priority: 1
+steps:
+  - name: this_function_does_not_exist
+    output: Analysis_Broken
+    params:
+      x: Raw_Growth

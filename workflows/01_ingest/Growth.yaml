@@ -1,0 +1,15 @@
+meta:
+  # The workflow result carries forward keyed by <Type>_<ID>, so this phase's
+  # output is available downstream as `Raw_Growth`.
+  Type: Raw
+  ID: Growth
+  Description: Load the raw tooth-growth data (base R ToothGrowth)
+  Priority: 1
+steps:
+  # `get("ToothGrowth")` returns the built-in datasets::ToothGrowth data.frame
+  # (supp = treatment, dose = level, len = response), exactly like the
+  # hello_cars example loads `cars`.
+  - name: get
+    output: Raw_Growth
+    params:
+      x: "ToothGrowth"

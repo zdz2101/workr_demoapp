@@ -1,0 +1,18 @@
+meta:
+  Type: Analysis
+  ID: Prepared           # -> carried forward as `Analysis_Prepared`
+  Description: Standardize raw columns into analysis-ready names
+  Priority: 1
+steps:
+  # workr::RunQuery runs SQL (DuckDB) over a data.frame; reference the table
+  # literally as `df`. Its `df` param resolves to lData$Raw_Growth (phase 1).
+  - name: workr::RunQuery
+    output: Analysis_Prepared
+    params:
+      df: Raw_Growth
+      strQuery: >
+        SELECT
+          supp AS group_id,
+          dose AS dose,
+          len  AS value
+        FROM df

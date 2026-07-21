@@ -1,0 +1,7 @@
+# Phase-level config (new in workr 1.1.0).
+#
+# By default every phase's outputs carry forward to the next phase as a flat
+# named list. A `_config.yaml` lets a phase choose exactly what it receives.
+# Here the reporting phase only wants the analysis-phase outputs.
+input:
+  from_phases: [02_analyze]

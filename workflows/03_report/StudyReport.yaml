@@ -1,0 +1,13 @@
+meta:
+  Type: Report
+  ID: StudyReport         # -> carried forward as `Report_StudyReport`
+  Description: Assemble the analysis outputs into a single report object
+  Priority: 1
+steps:
+  # `list` is just a function call like any other step; here it bundles the
+  # upstream outputs into one named list ready to hand to a renderer.
+  - name: list
+    output: lReport
+    params:
+      summary_by_group: Analysis_Summary
+      outlier_flags: Analysis_Flagged

@@ -1,0 +1,20 @@
+meta:
+  Type: Analysis
+  ID: Flagged            # -> carried forward as `Analysis_Flagged`
+  Description: Flag groups whose mean exceeds the overall mean
+  Priority: 3
+steps:
+  - name: workr::RunQuery
+    output: Analysis_Flagged
+    params:
+      df: Analysis_Summary
+      strQuery: >
+        SELECT
+          group_id,
+          mean_value,
+          CASE
+            WHEN mean_value > (SELECT AVG(mean_value) FROM df) THEN 'HIGH'
+            ELSE 'OK'
+          END AS flag
+        FROM df
+        ORDER BY mean_value DESC

@@ -1,0 +1,19 @@
+meta:
+  Type: Analysis
+  ID: Summary            # -> carried forward as `Analysis_Summary`
+  Description: Summarize the measure by treatment group
+  Priority: 2
+steps:
+  - name: workr::RunQuery
+    output: Analysis_Summary
+    params:
+      df: Analysis_Prepared
+      strQuery: >
+        SELECT
+          group_id,
+          COUNT(*)              AS n_obs,
+          ROUND(AVG(value), 1)  AS mean_value,
+          ROUND(MAX(value), 1)  AS max_value
+        FROM df
+        GROUP BY group_id
+        ORDER BY group_id

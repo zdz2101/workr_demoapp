@@ -1,0 +1,11 @@
+meta:
+  Type: Analysis
+  ID: OkMetric
+  Description: A perfectly healthy workflow
+  Priority: 1
+steps:
+  - name: workr::RunQuery
+    output: Analysis_Ok
+    params:
+      df: Raw_Growth
+      strQuery: "SELECT supp AS group_id, COUNT(*) AS n FROM df GROUP BY supp"
