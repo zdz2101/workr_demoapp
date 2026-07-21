@@ -3,12 +3,24 @@
 A small, runnable project that demonstrates the features added in
 [**{workr}** 1.1.0](https://github.com/Gilead-BioStats/workr) — multi-phase
 project orchestration, load/save hooks, workflow discovery, and
-continue-on-error — using only base-R data (`datasets::ChickWeight`) and SQL
+continue-on-error — using only base-R data (`datasets::ToothGrowth`) and SQL
 steps, so it clones and runs anywhere.
 
 > {workr} models a data pipeline as an ordered list of function calls described
 > in YAML. This repo shows how 1.1.0 turns a folder of those workflows into a
 > real, scheduled, restartable production run.
+
+## 🎬 Live demo app
+
+**→ [zeloszhu.com/workr_demoapp](https://zeloszhu.com/workr_demoapp/)**
+
+An interactive, browser-only walkthrough (in [`app/`](app/)): press **Run all**
+to watch the pipeline execute — cards go grey → running → done and the real
+output tables stream into an `lData` panel — plus a discovery toggle and a
+continue-on-error demo. The tables are genuine workr output, pre-computed by
+[`tools/export_demo_data.R`](tools/export_demo_data.R) into
+[`app/data.js`](app/data.js); the page itself needs no server or R at runtime.
+Published to GitHub Pages by [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
 
 ## Quick start
 
@@ -31,16 +43,16 @@ alphabetical order). Data flows RAW → prepared → summarized → flagged → 
 
 ```
 workflows/
-├── 01_ingest/                 load datasets::ChickWeight
-│   └── ingest.yaml
+├── 01_ingest/                 load datasets::ToothGrowth
+│   └── Growth.yaml
 ├── 02_analyze/                prepare → summarize → flag (SQL via workr::RunQuery)
-│   ├── a01_prepare.yaml
-│   ├── a02_summary.yaml
-│   ├── a03_flag.yaml
-│   └── a99_experimental.yaml  Active: false  → skipped by default
+│   ├── Prepared.yaml
+│   ├── Summary.yaml
+│   ├── Flagged.yaml
+│   └── ZScore.yaml            Active: false  → skipped by default
 └── 03_report/
     ├── _config.yaml           narrows what this phase receives
-    └── report.yaml            assembles the outputs into one object
+    └── StudyReport.yaml       assembles the outputs into one object
 ```
 
 ## What each 1.1.0 feature looks like
@@ -97,7 +109,7 @@ missing function. Fail-fast (the default) would abort; `bContinueOnError = TRUE`
 completes the run and reports what failed:
 
 ```r
-workr::RunProject("demo_continue_on_error", lData = list(Raw_Growth = datasets::ChickWeight),
+workr::RunProject("demo_continue_on_error", lData = list(Raw_Growth = datasets::ToothGrowth),
                   bContinueOnError = TRUE)
 ```
 

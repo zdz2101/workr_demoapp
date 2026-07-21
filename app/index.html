@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>workr · live demo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="topbar">
+    <span class="brand"><span class="accent">workr</span> · live demo</span>
+    <span class="sub">a very simple R data pipeline — 1.1.0 features, running in your browser</span>
+    <span class="spacer"></span>
+    <span class="badge" id="workr-ver">workr</span>
+    <a class="badge" href="https://github.com/zdz2101/workr_demoapp">repo ↗</a>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="tab-pipeline">Pipeline</button>
+    <button class="tab" data-tab="tab-discovery">Discovery</button>
+    <button class="tab" data-tab="tab-coe">Continue-on-error</button>
+  </div>
+
+  <!-- Pipeline -->
+  <section class="panel active" id="tab-pipeline">
+    <p class="lead">A workflow is an ordered list of function calls in YAML.
+      <code>RunProject()</code> runs a folder of them in phases, carrying each phase's
+      output to the next. Press <strong>Run all</strong> to watch it execute — the tables on
+      the right are real output computed with workr, not mock-ups. Click any card for its YAML and steps.</p>
+
+    <div class="controls">
+      <button class="btn primary" id="btn-run">▶ Run all</button>
+      <button class="btn" id="btn-step">Step</button>
+      <button class="btn ghost" id="btn-reset">Reset</button>
+      <span class="ctl-label">Storage hook</span>
+      <select id="storage" title="Where results are saved (SaveData hook)">
+        <option value="memory">in-memory</option>
+        <option value="local_files">local files</option>
+        <option value="github_artifact">GitHub artifact</option>
+      </select>
+    </div>
+
+    <div class="stage">
+      <div>
+        <div class="pipeline" id="pipeline"></div>
+      </div>
+      <div class="side">
+        <div>
+          <h3 class="side-title">lData (outputs)</h3>
+          <div class="ldata" id="ldata"></div>
+        </div>
+        <div>
+          <h3 class="side-title">execution log</h3>
+          <div class="log" id="log"></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="note">Same pipeline also runs headless in CI: a two-job
+      <a href="https://github.com/zdz2101/workr_demoapp/actions/workflows/artifact-roundtrip.yml">GitHub Actions workflow</a>
+      saves the outputs as an artifact on one run and restores them on the next via workr's
+      built-in <code>github_artifact</code> hook (the "Storage hook" selector above).</p>
+  </section>
+
+  <!-- Discovery -->
+  <section class="panel" id="tab-discovery">
+    <p class="lead"><code>MakeWorkflowList()</code> discovers workflows in a folder, sorts them by
+      <code>meta$Priority</code>, and skips any marked <code>Active: false</code>. Flip the switch to
+      include the work-in-progress <code>ZScore</code> workflow.</p>
+    <label class="switch"><input type="checkbox" id="disc-toggle"> Include inactive workflows
+      (<code>bActiveOnly = FALSE</code>)</label>
+    <pre id="disc-call" style="margin-top:0.8rem"></pre>
+    <div id="disc-list" style="max-width:520px"></div>
+  </section>
+
+  <!-- Continue on error -->
+  <section class="panel" id="tab-coe">
+    <p class="lead">By default a failing workflow aborts the run. With
+      <code>bContinueOnError = TRUE</code>, workr records the failure and keeps going — then hands
+      back a structured summary. The second workflow below calls a function that doesn't exist.</p>
+    <div class="controls"><button class="btn primary" id="coe-run">▶ Run with continue-on-error</button></div>
+    <div class="stage">
+      <div><div class="pipeline" id="coe-pipeline"></div><div id="coe-out" style="margin-top:1rem;max-width:640px"></div></div>
+      <div class="side">
+        <div><h3 class="side-title">execution log</h3><div class="log" id="coe-log"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal -->
+  <div class="modal-bg" id="modal">
+    <div class="modal">
+      <button class="close" id="modal-close">×</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
