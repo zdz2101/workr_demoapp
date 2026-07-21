@@ -103,6 +103,21 @@ workr::RunProject("demo_continue_on_error", lData = list(Raw_Growth = datasets::
 
 See [`scripts/04_continue_on_error.R`](scripts/04_continue_on_error.R).
 
+### 6. GitHub Actions artifact providers — pass data between CI runs
+workr ships built-in `"github_artifact"` load/save providers. The
+[`artifact-roundtrip`](.github/workflows/artifact-roundtrip.yml) workflow shows
+the round-trip: a **produce** job runs the pipeline and saves a bundle
+(`SaveData = "github_artifact"`), uploads it with `actions/upload-artifact`, and
+a **consume** job downloads it and restores it (`LoadData = "github_artifact"`)
+without recomputing. See [`scripts/ci_produce.R`](scripts/ci_produce.R) and
+[`scripts/ci_consume.R`](scripts/ci_consume.R); both run locally too:
+
+```sh
+WORKR_ARTIFACT_DIR=artifact-out Rscript scripts/ci_produce.R
+# (CI uploads/downloads here; locally, copy artifact-out/* to artifact-in/*)
+WORKR_INCOMING_DIR=artifact-in  Rscript scripts/ci_consume.R
+```
+
 ## Notes
 
 - Everything uses `workr::RunQuery()` (SQL over data frames) rather than

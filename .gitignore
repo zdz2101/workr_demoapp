@@ -1,5 +1,7 @@
 # workr demo artifacts
 _artifacts/
+artifact-out/
+artifact-in/
 
 # R / RStudio
 .Rproj.user/
