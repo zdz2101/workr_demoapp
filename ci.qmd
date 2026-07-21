@@ -1,0 +1,68 @@
+---
+title: "GitHub Actions artifact providers"
+---
+
+workr ships built-in `"github_artifact"` load/save providers so workflow data
+can pass **between CI runs**. The repo's
+[`artifact-roundtrip`](https://github.com/zdz2101/workr_demoapp/blob/main/.github/workflows/artifact-roundtrip.yml)
+workflow has two jobs: **produce** runs the pipeline, saves a bundle, and
+uploads it with `actions/upload-artifact`; **consume** downloads it and restores
+it with `LoadData = "github_artifact"` — no recomputation.
+
+See it run on the
+[Actions tab](https://github.com/zdz2101/workr_demoapp/actions/workflows/artifact-roundtrip.yml).
+
+## The workflow
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show .github/workflows/artifact-roundtrip.yml"
+cat(readLines(".github/workflows/artifact-roundtrip.yml"), sep = "\n")
+```
+
+## The same round-trip, live
+
+Below reproduces the CI handoff on this build machine: produce writes a bundle,
+we copy it where a download step would place it, then consume restores it.
+
+```{r}
+library(workr)
+
+# --- produce: save a github_artifact bundle ---
+snapshot_wf <- list(
+  meta  = list(Type = "Snapshot", ID = "analysis"),
+  steps = list(list(name = "identity", output = "ok", params = list(x = "Analysis_Summary")))
+)
+res <- RunProject("workflows", bRecursive = TRUE)
+invisible(RunWorkflow(
+  snapshot_wf, lData = res[["02_analyze"]],
+  lConfig = list(SaveData = "github_artifact",
+                 github_artifact = list(path = "artifact-out", artifact_name = "workr-demo-data"))
+))
+list.files("artifact-out/workr-demo-data", recursive = TRUE)
+```
+
+```{r}
+# --- simulate upload -> download ---
+unlink("artifact-in", recursive = TRUE)
+dir.create("artifact-in/workr-demo-data", recursive = TRUE, showWarnings = FALSE)
+file.copy("artifact-out/workr-demo-data", "artifact-in", recursive = TRUE)
+
+# --- consume: restore via github_artifact load provider ---
+restore_wf <- list(
+  meta  = list(Type = "Restore", ID = "peek"),
+  steps = list(list(name = "identity", output = "restored", params = list(x = "Analysis_Summary")))
+)
+restored <- RunWorkflow(
+  restore_wf, lData = list(),
+  lConfig = list(LoadData = "github_artifact",
+                 github_artifact = list(
+                   artifact_name = "workr-demo-data",
+                   download_dir  = "artifact-in",
+                   run_id        = "local",
+                   artifact_fetcher = function(repo, run_id, artifact_name, download_dir, ...) {
+                     file.path(download_dir, artifact_name)
+                   }))
+)
+knitr::kable(restored, caption = "Restored from the artifact bundle")
+```

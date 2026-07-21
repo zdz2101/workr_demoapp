@@ -1,0 +1,49 @@
+---
+title: "Load & save hooks"
+---
+
+A workflow describes *what* to compute; `lConfig` **hooks** describe *where* data
+comes from and goes to. The same workflow can read/write memory, local files, a
+database, or CI artifacts — with no change to its steps.
+
+`R/hooks.R` registers a `"local_files"` provider pair that persists each result
+to `_artifacts/*.rds` and restores it later:
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show R/hooks.R"
+cat(readLines("R/hooks.R"), sep = "\n")
+```
+
+## Run 1 — compute and save
+
+```{r}
+library(workr)
+source("R/hooks.R")
+
+lConfig <- list(SaveData = "local_files", artifact_dir = "_artifacts")
+
+invisible(RunProject(strPath = "workflows", bRecursive = TRUE, lConfig = lConfig))
+list.files("_artifacts", pattern = "\\.rds$")
+```
+
+## Run 2 — restore without recomputing
+
+The load hook merges saved artifacts back into `lData` — the same mechanism the
+built-in GitHub Actions artifact providers use (see [CI artifacts](ci.qmd)).
+
+```{r}
+restore_wf <- list(
+  meta  = list(Type = "Restore", ID = "peek"),
+  steps = list(
+    list(name = "identity", output = "restored", params = list(x = "Analysis_Summary"))
+  )
+)
+
+restored <- RunWorkflow(
+  lWorkflow = restore_wf,
+  lData     = list(),
+  lConfig   = list(LoadData = "local_files", artifact_dir = "_artifacts")
+)
+knitr::kable(restored, caption = "Restored from _artifacts/Analysis_Summary.rds")
+```

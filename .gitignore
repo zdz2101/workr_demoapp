@@ -3,6 +3,10 @@ _artifacts/
 artifact-out/
 artifact-in/
 
+# Quarto site build
+/_site/
+/.quarto/
+
 # R / RStudio
 .Rproj.user/
 .Rhistory

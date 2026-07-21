@@ -1,0 +1,41 @@
+---
+title: "Continue-on-error"
+---
+
+By default a failing workflow aborts the run (fail-fast). With
+`bContinueOnError = TRUE`, `RunProject()` records the failure and keeps going,
+returning a structured summary of what succeeded and what didn't.
+
+The `demo_continue_on_error/` project has one healthy workflow and one that
+calls a function which doesn't exist:
+
+```{.yaml filename="demo_continue_on_error/02_broken/BrokenMetric.yaml"}
+steps:
+  - name: this_function_does_not_exist
+    output: Analysis_Broken
+    params:
+      x: Raw_Growth
+```
+
+```{r}
+library(workr)
+
+results <- RunProject(
+  strPath          = "demo_continue_on_error",
+  lData            = list(Raw_Growth = datasets::ToothGrowth),
+  bRecursive       = TRUE,
+  bContinueOnError = TRUE
+)
+```
+
+## Per-workflow status
+
+```{r}
+knitr::kable(results$status, caption = "Every workflow, with success/error status")
+```
+
+## Just the failures
+
+```{r}
+knitr::kable(results$failures, caption = "Failures captured — the run still completed")
+```
